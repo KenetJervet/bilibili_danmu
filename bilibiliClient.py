@@ -7,6 +7,7 @@ from struct import *
 import json
 import config
 import re
+import subprocess
 
 class bilibiliClient():
     def __init__(self):
@@ -135,10 +136,7 @@ class bilibiliClient():
                 commentUser = '管理员 ' + commentUser
             if isVIP:
                 commentUser = 'VIP ' + commentUser
-            try:
-                print (commentUser + ' say: ' + commentText)
-            except:
-                pass
+            subprocess.run(["notify-send", "%s 说：" % commentUser, commentText])
             return
         if cmd == 'SEND_GIFT' and config.TURN_GIFT == 1:
             GiftName = dic['data']['giftName']
