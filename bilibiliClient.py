@@ -8,6 +8,9 @@ import json
 import config
 import re
 import subprocess
+import gi
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify
 
 class bilibiliClient():
     def __init__(self):
@@ -23,6 +26,7 @@ class bilibiliClient():
 
         self._roomId = input('请输入房间号：')
         self._roomId = int(self._roomId)
+        Notify.init("Bilibili Danmu")
 
     async def connectServer(self):
         print ('正在进入房间。。。。。')
@@ -104,7 +108,7 @@ class bilibiliClient():
                         messages = tmp.decode('utf-8')
                     except:
                         continue
-                    self.parseDanMu(messages)
+                    await self.parseDanMu(messages)
                     continue
                 elif num==5 or num==6 or num==7:
                     tmp = await self._reader.read(num2)
@@ -115,7 +119,7 @@ class bilibiliClient():
                     else:
                         continue
 
-    def parseDanMu(self, messages):
+    async def parseDanMu(self, messages):
         try:
             dic = json.loads(messages)
         except: # 有些情况会 jsondecode 失败，未细究，可能平台导致
@@ -136,7 +140,18 @@ class bilibiliClient():
                 commentUser = '管理员 ' + commentUser
             if isVIP:
                 commentUser = 'VIP ' + commentUser
-            subprocess.run(["notify-send", "%s 说：" % commentUser, commentText])
+            # Create the notification object
+            summary = "%s 说：" % commentUser
+            body = commentText
+            notification = Notify.Notification.new(
+                summary,
+                body, # Optional
+            )
+
+            # Actually show on screen
+            notification.show()
+            await asyncio.sleep(3)
+            notification.close()
             return
         if cmd == 'SEND_GIFT' and config.TURN_GIFT == 1:
             GiftName = dic['data']['giftName']
