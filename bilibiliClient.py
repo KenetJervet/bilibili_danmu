@@ -98,7 +98,7 @@ class bilibiliClient():
                 if num==0 or num==1 or num==2:
                     tmp = await self._reader.read(4)
                     num3, = unpack('!I', tmp)
-                    print ('房间人数为 %s' % num3)
+                    print ('人气值为 %s' % num3)
                     self._UserCount = num3
                     continue
                 elif num==3 or num==4:
