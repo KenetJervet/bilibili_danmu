@@ -81,6 +81,19 @@ class bilibiliClient():
         self._writer.write(sendbytes)
         await self._writer.drain()
 
+    async def notify_message(self, summary, body):
+        # Create the notification object
+        print("%s%s" % (summary, body))
+        notification = Notify.Notification.new(
+            summary,
+            body,   # Optional
+        )
+        # Actually show on screen
+        notification.show()
+        await asyncio.sleep(3)
+        notification.close()
+
+
 
     async def ReceiveMessageLoop(self):
         while self.connected == True:
@@ -140,18 +153,8 @@ class bilibiliClient():
                 commentUser = '管理员 ' + commentUser
             if isVIP:
                 commentUser = 'VIP ' + commentUser
-            # Create the notification object
             summary = "%s 说：" % commentUser
-            body = commentText
-            notification = Notify.Notification.new(
-                summary,
-                body, # Optional
-            )
-
-            # Actually show on screen
-            notification.show()
-            await asyncio.sleep(3)
-            notification.close()
+            await self.notify_message(summary, commentText)
             return
         if cmd == 'SEND_GIFT' and config.TURN_GIFT == 1:
             GiftName = dic['data']['giftName']
@@ -159,14 +162,16 @@ class bilibiliClient():
             Giftrcost = dic['data']['rcost']
             GiftNum = dic['data']['num']
             try:
-                print(GiftUser + ' 送出了 ' + str(GiftNum) + ' 个 ' + GiftName)
+                summary = GiftUser + ' 送出了 ' + str(GiftNum) + ' 个 ' + GiftName
+                await self.notify_message(summary, '')
             except:
                 pass
             return
         if cmd == 'WELCOME' and config.TURN_WELCOME == 1:
             commentUser = dic['data']['uname']
             try:
-                print ('欢迎 ' + commentUser + ' 进入房间。。。。')
+                summary = '欢迎 ' + commentUser + ' 进入房间。。。。'
+                await self.notify_message(summary, '')
             except:
                 pass
             return
